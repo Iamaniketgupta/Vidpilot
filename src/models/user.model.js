@@ -1,4 +1,6 @@
 import mongoose, { Schema } from "mongoose";
+import  Jwt  from "jsonwebtoken";
+import bcrypt from "bcrypt"
 
 const userSchema = new Schema({
 
@@ -39,6 +41,7 @@ const userSchema = new Schema({
 
     coverImg: {
         type: String,
+
     },
 
     refreshToken: {
@@ -55,9 +58,9 @@ const userSchema = new Schema({
 }, { timestamps: true });
 
 // Hashing
-userSchema.pre("save", async function () {
+userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return;
-    this.password = bcrypt.hash(this.password, 10);
+    this.password = await bcrypt.hash(this.password, 10);
     next();
 })
 
@@ -67,8 +70,8 @@ userSchema.methods.isPasswordCorrect = async function (password) {  //user passw
 }
 
 // JWT ACCESS TOKEN
-userSchema.methods.generateAccessToken = async function (password) {  //user password
-    return jwt.sign(
+userSchema.methods.generateAccessToken = async function () {  //user password
+    return Jwt.sign(
         // payload
         {   
             _id:this._id,
@@ -85,8 +88,8 @@ userSchema.methods.generateAccessToken = async function (password) {  //user pas
 }
 
 // JWT REFRESH TOKEN
-userSchema.methods.generateRefreshToken = async function (password) {  //user password
-    return jwt.sign(
+userSchema.methods.generateRefreshToken = async function () {  //user password
+    return Jwt.sign(
         // payload
         {   
             _id:this._id,
@@ -99,4 +102,5 @@ userSchema.methods.generateRefreshToken = async function (password) {  //user pa
 
 }
 
-export const user = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema)
+export {User};

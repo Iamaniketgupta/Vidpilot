@@ -14,3 +14,5 @@ const asyncHandler = (myfn) => {
 
     return reqHandler;
 }
+
+export {asyncHandler}
